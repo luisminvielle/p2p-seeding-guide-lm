@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seeding a Pear App</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root {
+    --green: #4a7c59;
+    --green-light: #e8f0eb;
+    --dark: #1a1a1a;
+    --gray: #555;
+    --light-gray: #f6f8f6;
+    --border: #dde3dd;
+    --code-bg: #f0f3f0;
+    --max-w: 720px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--dark);
+    line-height: 1.7;
+    background: #fff;
+    padding: 0 1.25rem;
+  }
+  .container { max-width: var(--max-w); margin: 0 auto; padding: 3rem 0 4rem; }
+
+  /* Header */
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+  }
+  .subtitle {
+    color: var(--gray);
+    font-size: 1.05rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid var(--green);
+    padding-bottom: 1.5rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 0.75rem;
+    color: var(--green);
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.75rem 0 0.5rem;
+    color: var(--dark);
+  }
+  p { margin-bottom: 1rem; }
+  a { color: var(--green); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { font-weight: 600; }
+
+  /* Code */
+  code {
+    font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+  }
+  pre {
+    background: var(--dark);
+    color: #e0e0e0;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85em;
+    color: inherit;
+  }
+  .lang-label {
+    display: inline-block;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Blockquotes / notes */
+  blockquote {
+    border-left: 3px solid var(--green);
+    background: var(--green-light);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0 1.25rem;
+    border-radius: 0 4px 4px 0;
+  }
+  blockquote p { margin-bottom: 0; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.25rem;
+    font-size: 0.92em;
+  }
+  th {
+    background: var(--green);
+    color: #fff;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* Images (screenshots) */
+  .screenshot {
+    display: block;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 1rem 0 1.5rem;
+  }
+
+  /* Lists */
+  ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.35rem; }
+
+  /* Workflow summary box */
+  .summary-box {
+    background: var(--light-gray);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--gray);
+    font-size: 0.85em;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Seeding a Pear App</h1>
+<p class="subtitle">A step-by-step guide to sharing peer-to-peer applications with the Pear runtime</p>
+
+<p>Seeding makes your Pear application available to other peers on the network. When you seed, you announce your app to the DHT (Distributed Hash Table) so that anyone with the app's link can find and run it directly from you, with no server in between.</p>
+
+<p>This guide walks through the full process: from a finished Pear app on your machine to a live, reachable application that peers can run with <code>pear run &lt;link&gt;</code>.</p>
+
+<h2>Prerequisites</h2>
+
+<p>Before you seed, make sure you have the following in place.</p>
+
+<p><strong>Node.js</strong> (for npm only; the Pear runtime itself does not depend on Node). Install via <a href="https://github.com/nvm-sh/nvm">nvm</a> on macOS/Linux or <a href="https://github.com/jasongin/nvs">nvs</a> on Windows.</p>
+
+<p><strong>Pear CLI</strong> installed globally:</p>
+
+<pre><code>npm i -g pear</code></pre>
+
+<p>Run <code>pear</code> once after install to complete the initial setup. On first launch, Pear downloads its runtimes and creates the platform directory.</p>
+
+<p><strong>Linux users:</strong> install <code>libatomic</code> before running Pear:</p>
+
+<pre><code># Debian / Ubuntu
+sudo apt install libatomic1
+
+# Fedora
+sudo dnf install libatomic
+
+# Alpine
+sudo apk add libatomic</code></pre>
+
+<p><strong>A Pear project</strong> with a valid <code>package.json</code>. At minimum, your <code>package.json</code> must include a <code>name</code> field and a <code>pear</code> configuration object:</p>
+
+<pre><code>{
+  "name": "my-app",
+  "pear": {
+    "name": "my-app",
+    "type": "desktop"
+  }
+}</code></pre>
+
+<p>The <code>type</code> field can be <code>"desktop"</code> or <code>"terminal"</code> depending on your application.</p>
+
+<p><strong>A working application.</strong> Test it locally with <code>pear dev</code> before you attempt to stage or seed.</p>
+
+<h3>Quick start: create a minimal test app</h3>
+
+<p>If you don't have a Pear app yet and want to test the seeding workflow, create one in under a minute:</p>
+
+<pre><code>mkdir pear-test && cd pear-test</code></pre>
+
+<p>Create <code>package.json</code>:</p>
+
+<pre><code>{
+  "name": "pear-test",
+  "pear": {
+    "name": "pear-test",
+    "type": "terminal"
+  }
+}</code></pre>
+
+<p>Create <code>index.js</code>:</p>
+
+<pre><code>const Pear = require('pear')
+console.log('App is running. Key:', Pear.config.key || 'local')</code></pre>
+
+<p>We use <code>"type": "terminal"</code> here so the app runs in the terminal with no GUI required. This makes it easy to verify in headless environments like Docker (see <a href="#testing-with-docker">Step 4: Testing with Docker</a> below).</p>
+
+<p>Test it locally:</p>
+
+<pre><code>pear dev .</code></pre>
+
+<p>You should see <code>App is running. Key: local</code> in the terminal. If that works, move on to Step 1.</p>
+
+<h2>Step 1. Stage the application</h2>
+
+<p>When you stage, Pear mirrors your local application files into its Application Storage. The channel name, combined with your app name and your device's unique corestore key, produces a unique application key.</p>
+
+<p>To view the help for <code>pear stage</code>, run <code>pear help stage</code>.</p>
+
+<p>The command signature is <code>pear stage &lt;channel|link&gt; [dir]</code>.</p>
+
+<p>By convention, for internal use we use the channel name <code>dev</code>:</p>
+
+<pre><code>pear stage dev</code></pre>
+
+<p>No need to specify <code>dir</code>. The command-line current working directory is already set to the project folder.</p>
+
+<p>The channel name can be any valid name. Using <code>dev</code> for local development and internal collaboration, <code>production</code> for public distribution, and <code>pear stage &lt;custom-channel-name&gt;</code> for customizations of the application is a reasonable convention.</p>
+
+<p>Stage outputs a diff of changes (the first time will all be additions) and then the application link. Save this <code>pear://</code> link. It is your application's permanent address on the network.</p>
+
+<img src="screenshots/pear-stage-dev.png" alt="Screenshot: pear stage dev output" class="screenshot">
+
+<p>Every time you run <code>pear stage</code> with new changes, the version increments. Peers who already have the link will see the updated version on their next connection.</p>
+
+<p>When you stage, Pear also performs a <strong>warmup step</strong>: it analyzes the application's initialization-to-loaded critical path and stores this metadata alongside the application in an application-dedicated hypercore. This helps the application load faster. All state is local, and only the machine that staged the application can write to this hypercore.</p>
+
+<blockquote>
+<p><strong>Note on frontend frameworks:</strong> Some frontend frameworks load different assets based on whether the <code>NODE_ENV</code> environment variable is set to <code>production</code>. If your application has this need, use <code>NODE_ENV=production pear stage dev</code> so that the captured critical path consists of production assets.</p>
+</blockquote>
+
+<h2>Step 2. Run the app on the same machine</h2>
+
+<p>Before seeding, verify that the staged application works by running it locally from Pear's Application Storage (not from source).</p>
+
+<p>To view the help for <code>pear run</code>, run <code>pear help run</code>.</p>
+
+<p>The command signature is <code>pear run &lt;link&gt;</code>.</p>
+
+<p>Copy the application link that was output when the application was staged and pass it to <code>pear run</code>. For example:</p>
+
+<pre><code>pear run pear://keet4hp5w33...</code></pre>
+
+<p><code>pear run</code> opens the application from Pear's application storage. At this point the application has remained local. In order to share it with other peers, it must be seeded.</p>
+
+<img src="screenshots/pear-run-local.png" alt="Screenshot: pear run output on the same machine" class="screenshot">
+
+<blockquote>
+<p><strong>Tip: pinning a release.</strong> You can optionally mark a stable release point with <code>pear release &lt;channel&gt;</code> before seeding. After a release, <code>pear run &lt;link&gt;</code> loads the released version by default, even if you stage more changes later. This is useful for production workflows but is not required for seeding.</p>
+</blockquote>
+
+<h2>Step 3. Seed the app</h2>
+
+<p>To share your application with other peers, announce it to the DHT and give them the application link.</p>
+
+<p>To view the help for <code>pear seed</code>, run <code>pear help seed</code>.</p>
+
+<p>The command signature is <code>pear seed &lt;channel|link&gt; [dir]</code>.</p>
+
+<p>The staged application can be seeded with:</p>
+
+<pre><code>pear seed dev</code></pre>
+
+<p>The application name and <code>channel</code> name are involved in generating the application key, so <code>pear seed</code> uses the project folder to determine the application name from <code>package.json</code> (<code>pear.name</code> or else <code>name</code> field). No need to specify <code>dir</code> here. The command-line current working directory is already set to the project folder.</p>
+
+<p>The <code>pear seed</code> process must stay running for peers to connect. As long as it runs, your machine acts as a seed. If other peers reseed the application, the original process could be closed. Be sure to keep the terminal open while this process is running.</p>
+
+<img src="screenshots/pear-seed-dev.png" alt="Screenshot: pear seed dev output showing announced" class="screenshot">
+
+<h3>Flags</h3>
+
+<table>
+<tr><th>Flag</th><th>Description</th></tr>
+<tr><td><code>--verbose</code>, <code>-v</code></td><td>Print additional status output</td></tr>
+<tr><td><code>--json</code></td><td>Output status as newline-delimited JSON (useful for automation)</td></tr>
+<tr><td><code>--name</code></td><td>Override the application name</td></tr>
+<tr><td><code>--no-ask</code></td><td>Suppress permission dialogs</td></tr>
+<tr><td><code>--help</code>, <code>-h</code></td><td>Show help</td></tr>
+</table>
+
+<h3>Example with verbose output</h3>
+
+<pre><code>pear seed production --verbose</code></pre>
+
+<p>This prints connection events and replication status as peers find and download the app.</p>
+
+<h3>Reseeding from a link</h3>
+
+<p>You can also seed an application from a different machine (one that did not stage it originally) by passing the full link:</p>
+
+<pre><code>pear seed pear://keet4hp5w33...</code></pre>
+
+<p>This fetches the application from the network and starts reseeding it from the current machine. Useful for setting up a second always-on seed, or for distributing the seeding load across multiple machines. See the <a href="#reseeding">Discussion: Reseeding</a> section below for more detail.</p>
+
+<h2>Step 4. Run the app on another machine</h2>
+
+<p>It's important that the application seeding process from Step 3 is up and running, otherwise peers will not be able to connect and replicate state.</p>
+
+<p>With another machine or friend that has <code>pear</code> installed, execute the <code>pear run &lt;link&gt;</code> command to load the application directly peer-to-peer:</p>
+
+<pre><code>pear run pear://keet4hp5w33...</code></pre>
+
+<h3>Trust dialog</h3>
+
+<p>When <code>pear run</code> is executed on the peer machine, there will be a security prompt to add the key to a list of trusted applications by typing "TRUST":</p>
+
+<pre><code>pear run pear://keet4hp5w33...
+&#9650; Key pear://keet4hp5w33... is not known
+
+  Be sure that software is trusted before running it
+
+  Type "TRUST" to allow execution or anything else to exit
+
+  Trust application?</code></pre>
+
+<p>The trust dialog is a security mechanism in Pear that appears when the user tries to run an application from an unknown or untrusted key for the first time. In the case that the app is run in detached mode (for example, when clicking on a pear link in the browser), the trust dialog is a GUI.</p>
+
+<blockquote>
+<p><strong>Note:</strong> During development with <code>pear run --dev</code>, applications are automatically trusted, as they are assumed to be safe for testing purposes. Trust dialog can be suppressed using the <code>--no-ask</code> flag with <code>pear run</code>, in which case the application will automatically decline unknown keys.</p>
+</blockquote>
+
+<p>The application has no state when it's opened for the first time, so the application may show a loader until it's ready to reveal.</p>
+
+<h3>Verify the connection</h3>
+
+<p>The machine running <code>pear seed</code> should show output similar to:</p>
+
+<pre><code>&#x1F350; Seeding: my-app [ dev ]
+    ctrl^c to stop &amp; exit
+
+  -&gt;|-
+    pear://keet4hp5w33...
+  ...
+  ^ announced
+  &lt;-- peer join 8854f613d911b998...ca88f4e778594c8e4fc480a314dc6d62</code></pre>
+
+<p>The <code>peer join</code> line displays the remote public key, in hex, of the peer that executed <code>pear run</code> with the application link.</p>
+
+<p>Once the application is closed on the peer machine, the seeding output will show a corresponding <code>peer drop</code> entry.</p>
+
+<h3 id="testing-with-docker">Testing with Docker</h3>
+
+<p>If you don't have a second machine available, Docker provides an isolated peer environment. Two terminal windows on the same machine share the same local Pear storage, so the data would already be there. Docker gives you a genuinely separate Pear identity.</p>
+
+<pre><code>docker run -it --rm node:20 bash</code></pre>
+
+<p>Inside the container:</p>
+
+<pre><code>npm i -g pear
+pear                                   # wait for first-run setup to finish
+pear run pear://&lt;your-link-from-step-1&gt;</code></pre>
+
+<p><strong>No Docker?</strong> Any isolated environment works: a VPS, a second user account on your machine, or a friend's laptop. The requirement is a separate Pear corestore, not a separate physical machine.</p>
+
+<h2>Full workflow summary</h2>
+
+<div class="summary-box">
+<pre><code>pear dev                        # develop and test locally
+pear stage dev                  # bundle and write to channel
+pear run pear://&lt;link&gt;          # verify from Pear storage on same machine
+pear seed dev --verbose         # announce to DHT and start seeding
+pear run pear://&lt;link&gt;          # run from a second peer (Docker, VPS, etc.)</code></pre>
+</div>
+
+<h2>Discussion</h2>
+
+<h3>Lazy loading large files and sparse replication</h3>
+
+<p>When Pear loads an application from a peer, the staged files are sparsely replicated. Assets outside the critical load path are only downloaded from peers on demand. If the application does not request an asset or module during a user session on a given machine, that asset is never replicated to that machine.</p>
+
+<p>Pear's Application Storage can hold very large files (terabytes) that peers can access on demand. Structure your applications so that very large files stay outside the critical load path. Lazily load large payloads, avoid autoplaying large media files, and defer non-essential scripts and styles. These strategies are as effective with Pear (if not more so) than with web browsers.</p>
+
+<h3 id="reseeding">Reseeding</h3>
+
+<p>The command signature for <code>pear seed</code> is <code>pear seed &lt;channel|link&gt; [dir]</code>.</p>
+
+<p>If the application was staged on the machine, it will seed the application from the machine. Otherwise, passing an application link to <code>pear seed</code> will reseed the application from that link. For example, given a link <code>pear://keet4hp5w33...</code>, executing <code>pear seed pear://keet4hp5w33...</code> on a peer that didn't originally stage that particular application will result in that process syncing up-to-date data from peers and providing it to peers who need it.</p>
+
+<p>Once an application is being reseeded, the original seeding process can be closed on the staging machine. However, any newly staged changes have to be seeded from that machine for reseeders to pick them up. This means <code>pear seed</code> can be used to "deploy" to reseeders by starting after staging, leaving it running until reseeders have synced, and then stopping the process again.</p>
+
+<h2>Common issues</h2>
+
+<p><strong>"No peers found" or slow first connection.</strong> The DHT needs a moment to propagate your announcement. Wait 10&ndash;20 seconds after starting <code>pear seed</code> before testing from another machine. If peers still can't connect, check that both machines have outbound UDP access. Pear uses Hyperswarm's hole-punching to traverse NATs, but some strict corporate firewalls block UDP entirely.</p>
+
+<p><strong>The seed process exits and the app becomes unreachable.</strong> <code>pear seed</code> must keep running. If you close the terminal or the machine goes to sleep, peers lose their seed. For production apps, run <code>pear seed</code> on an always-on machine, inside a process manager like <code>pm2</code> or <code>systemd</code>:</p>
+
+<pre><code># Using pm2
+pm2 start "pear seed production" --name my-app-seed
+
+# Using systemd (create a unit file)
+[Service]
+ExecStart=/usr/local/bin/pear seed production
+Restart=always</code></pre>
+
+<p><strong>Peers get an old version.</strong> You staged new changes but forgot to release. Run <code>pear release &lt;channel&gt;</code> to update the release pointer. Peers who run the app will then load the new version.</p>
+
+<p><strong>"Channel not found" on a new machine.</strong> You can only <code>pear seed &lt;channel-name&gt;</code> on the machine that staged the app. On a different machine, use the full <code>pear://</code> link instead: <code>pear seed pear://keet4hp5w33...</code></p>
+
+<p><strong>Application name mismatch.</strong> The key is derived from the combination of app name, channel name, and corestore key. If you change the <code>name</code> field in <code>package.json</code> after staging, the key will change too. Keep the name stable once you start distributing.</p>
+
+<h2>Best practices</h2>
+
+<ul>
+<li><strong>Keep at least one seed running at all times.</strong> If all seeds go offline, the app becomes unreachable until one comes back. For any app with real users, run a dedicated seed on a VPS or always-on machine.</li>
+<li><strong>Use separate channels.</strong> <code>dev</code> for your team, <code>production</code> for end users. This keeps unstable changes away from your user base.</li>
+<li><strong>Automate with <code>--json</code>.</strong> The <code>--json</code> flag outputs machine-readable status. Pipe it into your monitoring or CI system to track seed health.</li>
+<li><strong>Pin releases before seeding.</strong> Always run <code>pear release</code> before <code>pear seed</code> for production channels. This ensures peers get the version you intended, not whatever you last staged.</li>
+<li><strong>Test the full loop before distributing.</strong> Stage, release, seed, then <code>pear run &lt;link&gt;</code> from a separate machine. If it works end-to-end, share the link. If it doesn't, debug before your users hit the issue.</li>
+</ul>
+
+<div class="footer">
+<p>Written by Luis Minvielle. Built with <a href="https://docs.pears.com/">Pear</a> documentation as reference.</p>
+</div>
+
+</div>
+</body>
+</html>
